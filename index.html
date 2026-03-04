@@ -268,20 +268,32 @@ footer{text-align:center;padding:14px 24px;font-size:12px;color:var(--muted);bor
             </div>
             <div class="fg">
               <label>💪 Haut du corps</label>
-              <div class="lsel-h" id="lsel-hc" data-key="hc">
-                ${[1,2,3,4,5].map(n=>`<span class="istar" data-val="${n}" style="color:#dadce0" onclick="setFormStar('hc',${n})">★</span>`).join('')}
+              <div class="lsel-h" id="lsel-hc">
+                <span class="istar" data-val="1" style="color:#dadce0" onclick="setFormStar('hc',1)">★</span>
+                <span class="istar" data-val="2" style="color:#dadce0" onclick="setFormStar('hc',2)">★</span>
+                <span class="istar" data-val="3" style="color:#dadce0" onclick="setFormStar('hc',3)">★</span>
+                <span class="istar" data-val="4" style="color:#dadce0" onclick="setFormStar('hc',4)">★</span>
+                <span class="istar" data-val="5" style="color:#dadce0" onclick="setFormStar('hc',5)">★</span>
               </div>
             </div>
             <div class="fg">
               <label>🦵 Membres inf.</label>
-              <div class="lsel-h" id="lsel-mi" data-key="mi">
-                ${[1,2,3,4,5].map(n=>`<span class="istar" data-val="${n}" style="color:#dadce0" onclick="setFormStar('mi',${n})">★</span>`).join('')}
+              <div class="lsel-h" id="lsel-mi">
+                <span class="istar" data-val="1" style="color:#dadce0" onclick="setFormStar('mi',1)">★</span>
+                <span class="istar" data-val="2" style="color:#dadce0" onclick="setFormStar('mi',2)">★</span>
+                <span class="istar" data-val="3" style="color:#dadce0" onclick="setFormStar('mi',3)">★</span>
+                <span class="istar" data-val="4" style="color:#dadce0" onclick="setFormStar('mi',4)">★</span>
+                <span class="istar" data-val="5" style="color:#dadce0" onclick="setFormStar('mi',5)">★</span>
               </div>
             </div>
             <div class="fg">
               <label>🔥 Sangle abd.</label>
-              <div class="lsel-h" id="lsel-sa" data-key="sa">
-                ${[1,2,3,4,5].map(n=>`<span class="istar" data-val="${n}" style="color:#dadce0" onclick="setFormStar('sa',${n})">★</span>`).join('')}
+              <div class="lsel-h" id="lsel-sa">
+                <span class="istar" data-val="1" style="color:#dadce0" onclick="setFormStar('sa',1)">★</span>
+                <span class="istar" data-val="2" style="color:#dadce0" onclick="setFormStar('sa',2)">★</span>
+                <span class="istar" data-val="3" style="color:#dadce0" onclick="setFormStar('sa',3)">★</span>
+                <span class="istar" data-val="4" style="color:#dadce0" onclick="setFormStar('sa',4)">★</span>
+                <span class="istar" data-val="5" style="color:#dadce0" onclick="setFormStar('sa',5)">★</span>
               </div>
             </div>
             <div class="fg"><label>&nbsp;</label>
@@ -360,15 +372,33 @@ footer{text-align:center;padding:14px 24px;font-size:12px;color:var(--muted);bor
       <div class="fg"><label>Prénom / Nom</label><input type="text" id="en2" style="width:100%"></div>
       <div class="fg">
         <label>💪 Haut du corps</label>
-        <div class="lsel-h" id="elsel-hc" data-key="ehc">${[1,2,3,4,5].map(n=>`<span class="istar" data-val="${n}" style="color:#dadce0;font-size:24px" onclick="setEditStar('hc',${n})">★</span>`).join('')}</div>
+        <div class="lsel-h" id="elsel-hc">
+          <span class="istar" data-val="1" style="color:#dadce0;font-size:24px" onclick="setEditStar('hc',1)">★</span>
+          <span class="istar" data-val="2" style="color:#dadce0;font-size:24px" onclick="setEditStar('hc',2)">★</span>
+          <span class="istar" data-val="3" style="color:#dadce0;font-size:24px" onclick="setEditStar('hc',3)">★</span>
+          <span class="istar" data-val="4" style="color:#dadce0;font-size:24px" onclick="setEditStar('hc',4)">★</span>
+          <span class="istar" data-val="5" style="color:#dadce0;font-size:24px" onclick="setEditStar('hc',5)">★</span>
+        </div>
       </div>
       <div class="fg">
         <label>🦵 Membres inférieurs</label>
-        <div class="lsel-h" id="elsel-mi" data-key="emi">${[1,2,3,4,5].map(n=>`<span class="istar" data-val="${n}" style="color:#dadce0;font-size:24px" onclick="setEditStar('mi',${n})">★</span>`).join('')}</div>
+        <div class="lsel-h" id="elsel-mi">
+          <span class="istar" data-val="1" style="color:#dadce0;font-size:24px" onclick="setEditStar('mi',1)">★</span>
+          <span class="istar" data-val="2" style="color:#dadce0;font-size:24px" onclick="setEditStar('mi',2)">★</span>
+          <span class="istar" data-val="3" style="color:#dadce0;font-size:24px" onclick="setEditStar('mi',3)">★</span>
+          <span class="istar" data-val="4" style="color:#dadce0;font-size:24px" onclick="setEditStar('mi',4)">★</span>
+          <span class="istar" data-val="5" style="color:#dadce0;font-size:24px" onclick="setEditStar('mi',5)">★</span>
+        </div>
       </div>
       <div class="fg">
         <label>🔥 Sangle abdominale</label>
-        <div class="lsel-h" id="elsel-sa" data-key="esa">${[1,2,3,4,5].map(n=>`<span class="istar" data-val="${n}" style="color:#dadce0;font-size:24px" onclick="setEditStar('sa',${n})">★</span>`).join('')}</div>
+        <div class="lsel-h" id="elsel-sa">
+          <span class="istar" data-val="1" style="color:#dadce0;font-size:24px" onclick="setEditStar('sa',1)">★</span>
+          <span class="istar" data-val="2" style="color:#dadce0;font-size:24px" onclick="setEditStar('sa',2)">★</span>
+          <span class="istar" data-val="3" style="color:#dadce0;font-size:24px" onclick="setEditStar('sa',3)">★</span>
+          <span class="istar" data-val="4" style="color:#dadce0;font-size:24px" onclick="setEditStar('sa',4)">★</span>
+          <span class="istar" data-val="5" style="color:#dadce0;font-size:24px" onclick="setEditStar('sa',5)">★</span>
+        </div>
       </div>
     </div>
     <div style="display:flex;gap:10px;margin-top:22px;justify-content:flex-end">
@@ -530,7 +560,7 @@ onAuthStateChanged(auth, user => {
     G('user-name').textContent = user.displayName || '';
     G('user-avatar').src = user.photoURL || '';
     // Init form stars display
-    ['hc','mi','sa'].forEach(k => renderFormStars(k, formStars[k]));
+    ['hc','mi','sa'].forEach(k => { formStars[k]=3; renderFormStars(k, 3); });
     startListening();
   } else {
     uid = null; groups = {}; currentGrpId = null;
