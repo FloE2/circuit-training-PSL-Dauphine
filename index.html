@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SUAPS — Compositeur d'équipes Circuit Training</title>
+<style>
+:root{
+  --primary:#6c3eb1;--dark:#4a2880;--green:#34a853;--red:#ea4335;
+  --yellow:#fbbc04;--bg:#f5f0ff;--card:#fff;--border:#e0d5f5;
+  --text:#1a1a2e;--muted:#6b7280;--r:12px;--sh:0 2px 8px rgba(108,62,177,.1);
+  --hc:#e53935;--mi:#1e88e5;--sa:#43a047;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column}
+
+/* LOGIN */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#6c3eb1,#4a2880)}
+.login-card{background:#fff;border-radius:20px;padding:48px 40px;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,.25);max-width:420px;width:90%}
+.login-logo{font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:var(--primary);margin-bottom:4px}
+.login-uni{font-size:22px;font-weight:900;color:var(--text);margin-bottom:4px}
+.login-sub{font-size:15px;font-weight:600;color:var(--primary);margin-bottom:24px}
+.login-desc{color:var(--muted);font-size:14px;margin-bottom:32px;line-height:1.6}
+.legend{display:flex;justify-content:center;gap:16px;margin-bottom:28px;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600}
+.leg-dot{width:10px;height:10px;border-radius:50%}
+.btn-google{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;padding:14px 24px;border:2px solid var(--border);border-radius:12px;background:#fff;cursor:pointer;font-size:15px;font-weight:600;color:var(--text);transition:all .2s}
+.btn-google:hover{background:var(--bg);border-color:var(--primary)}
+.btn-google img{width:22px}
+
+/* APP */
+#app{display:none;flex:1;flex-direction:column}
+header{background:linear-gradient(135deg,#6c3eb1,#4a2880);color:#fff;padding:14px 24px;display:flex;align-items:center;gap:12px;box-shadow:0 2px 10px rgba(0,0,0,.2)}
+.hdr-logo{flex-shrink:0;text-align:left}
+.hdr-logo .l1{font-size:11px;font-weight:700;letter-spacing:2px;opacity:.8;text-transform:uppercase}
+.hdr-logo .l2{font-size:17px;font-weight:900;line-height:1.1}
+.hdr-logo .l3{font-size:12px;font-weight:600;opacity:.8}
+header .spacer{flex:1}
+.user-info{display:flex;align-items:center;gap:10px;flex-shrink:0}
+.user-avatar{width:32px;height:32px;border-radius:50%;border:2px solid rgba(255,255,255,.4)}
+.user-name{font-size:13px;opacity:.9;display:none}
+@media(min-width:600px){.user-name{display:block}}
+.btn-logout{padding:6px 12px;border:1.5px solid rgba(255,255,255,.4);border-radius:8px;background:none;color:#fff;cursor:pointer;font-size:12px;font-weight:600;transition:all .2s}
+.btn-logout:hover{background:rgba(255,255,255,.15)}
+
+/* CLASS BAR */
+.class-bar{background:#fff;border-bottom:2px solid var(--border);padding:8px 20px;display:flex;align-items:center;gap:8px;overflow-x:auto;min-height:50px}
+.class-chip{padding:6px 14px;border-radius:20px;border:1.5px solid var(--border);background:#fff;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap;transition:all .2s;display:inline-flex;align-items:center;gap:5px}
+.class-chip:hover{border-color:var(--primary);color:var(--primary)}
+.class-chip.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.del-cls{background:none;border:none;cursor:pointer;color:inherit;font-size:14px;padding:0 2px;opacity:.65;line-height:1}
+.del-cls:hover{opacity:1}
+.btn-add-class{padding:6px 14px;border-radius:20px;border:1.5px dashed var(--border);background:none;cursor:pointer;font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap;transition:all .2s}
+.btn-add-class:hover{border-color:var(--green);color:var(--green)}
+
+/* TABS */
+.tabs{display:flex;background:#fff;border-bottom:2px solid var(--border);padding:0 20px;gap:4px;overflow-x:auto}
+.tb{padding:12px 16px;border:none;background:none;cursor:pointer;font-size:14px;font-weight:600;color:var(--muted);border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .2s;display:flex;align-items:center;gap:7px;white-space:nowrap}
+.tb:hover{color:var(--primary)}.tb.active{color:var(--primary);border-bottom-color:var(--primary)}
+.badge{background:var(--primary);color:#fff;border-radius:20px;font-size:11px;padding:2px 7px;font-weight:700}
+
+/* LAYOUT */
+.content{padding:20px;max-width:1300px;margin:0 auto;width:100%;flex:1}
+.panel{display:none}.panel.active{display:block}
+.card{background:var(--card);border-radius:var(--r);padding:20px;box-shadow:var(--sh);margin-bottom:20px}
+.ct{font-size:15px;font-weight:700;margin-bottom:16px}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
+input[type=text],select,input[type=number]{padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;outline:none;transition:border-color .2s;background:#fff}
+input[type=text]:focus,select:focus,input[type=number]:focus{border-color:var(--primary)}
+input[type=text]{min-width:160px}
+.btn{padding:10px 18px;border:none;border-radius:8px;cursor:pointer;font-size:14px;font-weight:600;transition:all .2s;display:inline-flex;align-items:center;gap:6px}
+.btn-b{background:var(--primary);color:#fff}.btn-b:hover{background:var(--dark)}
+.btn-g{background:var(--green);color:#fff}.btn-g:hover{background:#2d9248}
+.btn-sm{padding:6px 12px;font-size:12px}
+.ico-btn{padding:6px 8px;background:none;border:none;cursor:pointer;border-radius:6px;font-size:16px;transition:background .2s}
+.ico-btn:hover{background:var(--bg)}
+
+/* INLINE STARS */
+.stars-row{display:flex;align-items:center;gap:3px;margin-top:3px}
+.stars-row .slabel{font-size:10px;font-weight:700;width:22px;flex-shrink:0;text-transform:uppercase}
+.istar{font-size:18px;cursor:pointer;line-height:1;transition:transform .1s;user-select:none}
+.istar:hover{transform:scale(1.25)}
+.niv-badge{font-size:10px;font-weight:800;margin-left:3px;padding:1px 5px;border-radius:4px;color:#fff}
+
+/* DOMINANT BADGE */
+.dom{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;color:#fff;margin-top:4px}
+
+/* STUDENTS */
+.sgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.sc{border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;align-items:flex-start;gap:10px;background:#fff}
+.sc.absent{background:#fce8e6;border-color:#f5c6c2;opacity:.75}
+.sc.absent .sname{text-decoration:line-through;color:var(--muted)}
+.gab{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;font-weight:700;color:#fff;background:var(--primary);margin-top:2px}
+.sinfo{flex:1;min-width:0}
+.sname{font-weight:700;font-size:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.3}
+.smeta{font-size:12px;color:var(--muted);margin-top:2px}
+.sact{display:flex;gap:2px;flex-shrink:0}
+.sbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chip{background:#fff;border:1.5px solid var(--border);border-radius:20px;padding:5px 12px;font-size:13px;display:flex;align-items:center;gap:6px;font-weight:600}
+.chip strong{color:var(--primary);font-size:14px}
+
+/* ALERTS */
+.al{border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:14px;line-height:1.6}
+.al-i{background:#ede7ff;border:1px solid #c4aff5;color:var(--primary)}
+.al-w{background:#fce8e6;border:1px solid #f5c6c2;color:#c62828}
+
+/* SEARCH */
+.sw{display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.sb{position:relative;flex:1;min-width:180px}
+.sb input{width:100%;padding-left:36px}
+.sb::before{content:'🔍';position:absolute;left:12px;top:50%;transform:translateY(-50%);pointer-events:none}
+
+/* SETTINGS */
+.set-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px}
+.si{display:flex;flex-direction:column;gap:6px}
+.si label{font-size:12px;font-weight:700;color:var(--muted);text-transform:uppercase}
+.tog{display:flex;border:1.5px solid var(--border);border-radius:8px;overflow:hidden}
+.tog input{display:none}
+.tog label{flex:1;padding:10px;text-align:center;cursor:pointer;font-size:13px;font-weight:600;transition:all .2s}
+.tog input:checked+label{background:var(--primary);color:#fff}
+
+/* TEAMS */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}
+.tc{border-radius:12px;overflow:hidden;box-shadow:var(--sh)}
+.th{padding:12px 16px;color:#fff;font-weight:700;font-size:15px;display:flex;justify-content:space-between;align-items:center}
+.tbody{background:#fff}
+.pr{padding:10px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--bg)}
+.pr:last-child{border-bottom:none}
+.pnum{width:26px;height:26px;border-radius:50%;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--muted);flex-shrink:0}
+.pname{flex:1;font-size:13px;font-weight:600}
+.sdiv{padding:5px 14px;background:#ede7ff;font-size:11px;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:1px}
+
+/* NO CLASS */
+.no-class{text-align:center;padding:60px 20px;color:var(--muted)}
+.no-class .em{font-size:52px;margin-bottom:14px}
+.no-class h2{font-size:20px;font-weight:700;margin-bottom:8px;color:var(--text)}
+.no-class p{font-size:14px;margin-bottom:24px}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty .em{font-size:44px;margin-bottom:10px}
+.spinner{display:inline-block;width:20px;height:20px;border:2.5px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* MODALS */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:100;align-items:center;justify-content:center}
+.mo.open{display:flex}
+.moc{background:#fff;border-radius:16px;padding:26px;min-width:300px;max-width:500px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.2)}
+.moc h3{font-size:17px;margin-bottom:18px}
+
+/* TABLE */
+.stab{width:100%;border-collapse:collapse;font-size:13px}
+.stab th{text-align:left;padding:8px 12px;background:var(--bg);font-weight:700;font-size:11px;text-transform:uppercase;color:var(--muted)}
+.stab td{padding:8px 12px;border-bottom:1px solid var(--border)}
+
+/* LEGEND BAR */
+.leg-bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:8px 20px;background:#fff;border-bottom:1px solid var(--border);font-size:12px}
+.leg-item{display:flex;align-items:center;gap:5px;font-weight:600}
+.leg-dot2{width:10px;height:10px;border-radius:50%}
+
+/* FOOTER */
+footer{text-align:center;padding:14px 24px;font-size:12px;color:var(--muted);border-top:1px solid var(--border);background:#fff;flex-shrink:0}
+
+@media(max-width:600px){.content{padding:12px}input[type=text]{min-width:unset;width:100%}}
+@media print{.tabs,header,.class-bar,.btn,.sact,.sw,#add-card,.leg-bar{display:none!important}.panel.active{display:block!important}body{background:#fff}}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo">PSL Dauphine</div>
+    <div class="login-uni">SUAPS</div>
+    <div class="login-sub">Circuit Training · CrossFit</div>
+    <div class="legend">
+      <div class="leg"><div class="leg-dot" style="background:#e53935"></div>💪 Haut du corps</div>
+      <div class="leg"><div class="leg-dot" style="background:#1e88e5"></div>🦵 Membres inf.</div>
+      <div class="leg"><div class="leg-dot" style="background:#43a047"></div>🔥 Sangle abd.</div>
+    </div>
+    <div class="login-desc">Compositeur d'équipes équilibrées pour vos séances.<br>Vos données synchronisées sur tous vos appareils.</div>
+    <button class="btn-google" onclick="loginGoogle()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+      Continuer avec Google
+    </button>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+  <header>
+    <div class="hdr-logo">
+      <div class="l1">PSL Dauphine</div>
+      <div class="l2">SUAPS</div>
+      <div class="l3">Circuit Training · CrossFit</div>
+    </div>
+    <div class="spacer"></div>
+    <div class="user-info">
+      <img class="user-avatar" id="user-avatar" src="" alt="">
+      <span class="user-name" id="user-name"></span>
+      <button class="btn-logout" onclick="logout()">⏻ Déconnexion</button>
+    </div>
+  </header>
+
+  <!-- Légende permanente -->
+  <div class="leg-bar">
+    <span style="font-weight:700;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.5px">Légende :</span>
+    <div class="leg-item"><div class="leg-dot2" style="background:var(--hc)"></div>💪 Haut du corps (HC)</div>
+    <div class="leg-item"><div class="leg-dot2" style="background:var(--mi)"></div>🦵 Membres inférieurs (MI)</div>
+    <div class="leg-item"><div class="leg-dot2" style="background:var(--sa)"></div>🔥 Sangle abdominale (SA)</div>
+    <div class="leg-item" style="margin-left:8px"><span style="background:#9c27b0;color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;font-weight:700">POLY</span> Polyvalent</div>
+  </div>
+
+  <!-- Groupes -->
+  <div class="class-bar" id="class-bar">
+    <span class="spinner"></span> Chargement…
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs" id="tabs" style="display:none">
+    <button class="tb active" onclick="showTab('etudiants')" id="tab-etudiants">🏋️ Étudiants <span class="badge" id="b-et">0</span></button>
+    <button class="tb" onclick="showTab('params')" id="tab-params">⚙️ Paramètres</button>
+    <button class="tb" onclick="showTab('equipes')" id="tab-equipes">🏆 Équipes <span class="badge" id="b-eq">0</span></button>
+  </div>
+
+  <div class="content">
+
+    <!-- Vue sans groupe -->
+    <div id="no-class-view" style="display:none">
+      <div class="no-class">
+        <div class="em">🏋️</div>
+        <h2>Commencez par créer un groupe</h2>
+        <p>Les étudiants sont toujours rattachés à un groupe.<br>Créez d'abord votre groupe, puis ajoutez vos étudiants.</p>
+        <div style="display:flex;flex-direction:column;gap:12px;align-items:center;max-width:320px;margin:0 auto">
+          <div style="display:flex;align-items:center;gap:12px;background:var(--bg);border-radius:12px;padding:14px 20px;width:100%">
+            <span style="font-size:28px">1️⃣</span>
+            <div style="text-align:left"><div style="font-weight:700;font-size:14px;color:var(--text)">Créer un groupe</div><div style="font-size:12px;color:var(--muted)">Ex : L1 Économie, M2 Finance…</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;background:var(--bg);border-radius:12px;padding:14px 20px;width:100%;opacity:.5">
+            <span style="font-size:28px">2️⃣</span>
+            <div style="text-align:left"><div style="font-weight:700;font-size:14px;color:var(--text)">Ajouter les étudiants</div><div style="font-size:12px;color:var(--muted)">Nom + niveaux HC / MI / SA</div></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;background:var(--bg);border-radius:12px;padding:14px 20px;width:100%;opacity:.5">
+            <span style="font-size:28px">3️⃣</span>
+            <div style="text-align:left"><div style="font-weight:700;font-size:14px;color:var(--text)">Composer les équipes</div><div style="font-size:12px;color:var(--muted)">Équilibrées automatiquement</div></div>
+          </div>
+          <button class="btn btn-b" style="margin-top:8px;width:100%;justify-content:center" onclick="addClassPrompt()">🏋️ Créer mon premier groupe</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Panels -->
+    <div id="panels" style="display:none">
+
+      <!-- ÉTUDIANTS -->
+      <div class="panel active" id="panel-etudiants">
+        <div class="card" id="add-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:16px">
+            <div class="ct" id="add-card-title" style="margin:0">🏋️ Ajouter un étudiant</div>
+            <button class="btn btn-sm" style="background:#ede7ff;color:var(--primary);border:1.5px solid #c4aff5" onclick="openImport()">📥 Importer CSV</button>
+          </div>
+          <div class="row">
+            <div class="fg">
+              <label>Prénom / Nom</label>
+              <input type="text" id="inp" placeholder="Ex : Marie Dupont" onkeydown="if(event.key==='Enter')addEtudiant()">
+            </div>
+            <div class="fg">
+              <label>💪 Haut du corps</label>
+              <div class="lsel-h" id="lsel-hc" data-key="hc">
+                ${[1,2,3,4,5].map(n=>`<span class="istar" data-val="${n}" style="color:#dadce0" onclick="setFormStar('hc',${n})">★</span>`).join('')}
+              </div>
+            </div>
+            <div class="fg">
+              <label>🦵 Membres inf.</label>
+              <div class="lsel-h" id="lsel-mi" data-key="mi">
+                ${[1,2,3,4,5].map(n=>`<span class="istar" data-val="${n}" style="color:#dadce0" onclick="setFormStar('mi',${n})">★</span>`).join('')}
+              </div>
+            </div>
+            <div class="fg">
+              <label>🔥 Sangle abd.</label>
+              <div class="lsel-h" id="lsel-sa" data-key="sa">
+                ${[1,2,3,4,5].map(n=>`<span class="istar" data-val="${n}" style="color:#dadce0" onclick="setFormStar('sa',${n})">★</span>`).join('')}
+              </div>
+            </div>
+            <div class="fg"><label>&nbsp;</label>
+              <button class="btn btn-b" onclick="addEtudiant()">➕ Ajouter</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="sbar" id="sbar"></div>
+
+        <div class="sw">
+          <div class="sb"><input type="text" id="q" placeholder="Rechercher…" oninput="renderEtudiants()"></div>
+          <button class="btn btn-sm" style="background:#e8f5e9;color:#2e7d32" onclick="allPresent()">✅ Tous présents</button>
+          <button class="btn btn-sm" style="background:#fce8e6;color:var(--red)" onclick="allAbsent()">😴 Tous absents</button>
+        </div>
+
+        <div class="sgrid" id="list"></div>
+      </div>
+
+      <!-- PARAMÈTRES -->
+      <div class="panel" id="panel-params">
+        <div class="card">
+          <div class="ct">⚙️ Configuration des équipes</div>
+          <div class="set-grid">
+            <div class="si"><label>Nombre d'équipes</label>
+              <input type="number" id="neq" value="2" min="2" max="8" style="width:100%" oninput="preview()">
+            </div>
+            <div class="si"><label>Étudiants par équipe</label>
+              <input type="number" id="njoueurs" value="5" min="1" max="20" style="width:100%" oninput="preview()">
+            </div>
+            <div class="si"><label>Répartition</label>
+              <div class="tog">
+                <input type="radio" name="eq" id="en" value="oui" checked><label for="en">Par niveau</label>
+                <input type="radio" name="eq" id="ea" value="non"><label for="ea">Aléatoire</label>
+              </div>
+            </div>
+            <div class="si"><label>&nbsp;</label>
+              <button class="btn btn-g" style="width:100%;justify-content:center;font-size:15px" onclick="compose()">🎲 Composer</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="ct">📖 Logique de composition</div>
+          <div class="al al-i">
+            <strong>Comment sont composées les équipes ?</strong><br><br>
+            Le score global de chaque étudiant est la <strong>moyenne de ses 3 niveaux</strong> (HC + MI + SA) / 3.<br><br>
+            ▶ La distribution en <em>serpentin</em> garantit que le <strong>n°1 de chaque équipe</strong> a un score global équivalent.<br>
+            ▶ La <strong>dominante</strong> (💪 HC · 🦵 MI · 🔥 SA · <span style="color:#9c27b0;font-weight:700">POLY</span>) indique le point fort de chaque étudiant.<br>
+            ▶ Lors des rotations de circuits, faites tourner les étudiants de <strong>même numéro</strong> ensemble pour maintenir l'équilibre.
+          </div>
+        </div>
+
+        <div id="prev"></div>
+      </div>
+
+      <!-- ÉQUIPES -->
+      <div class="panel" id="panel-equipes">
+        <div id="eqcontent">
+          <div class="empty"><div class="em">🏋️</div><p>Aucune équipe composée.<br>Allez dans <strong>Paramètres</strong>.</p></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>Application pensée par <strong>Marine Zubaloff</strong> · PSL Dauphine · SUAPS &nbsp;©&nbsp;2026</footer>
+
+<!-- MODAL EDIT ÉTUDIANT -->
+<div class="mo" id="modal" onclick="if(event.target===this)closeM()">
+  <div class="moc">
+    <h3>✏️ Modifier l'étudiant</h3>
+    <div style="display:flex;flex-direction:column;gap:14px">
+      <div class="fg"><label>Prénom / Nom</label><input type="text" id="en2" style="width:100%"></div>
+      <div class="fg">
+        <label>💪 Haut du corps</label>
+        <div class="lsel-h" id="elsel-hc" data-key="ehc">${[1,2,3,4,5].map(n=>`<span class="istar" data-val="${n}" style="color:#dadce0;font-size:24px" onclick="setEditStar('hc',${n})">★</span>`).join('')}</div>
+      </div>
+      <div class="fg">
+        <label>🦵 Membres inférieurs</label>
+        <div class="lsel-h" id="elsel-mi" data-key="emi">${[1,2,3,4,5].map(n=>`<span class="istar" data-val="${n}" style="color:#dadce0;font-size:24px" onclick="setEditStar('mi',${n})">★</span>`).join('')}</div>
+      </div>
+      <div class="fg">
+        <label>🔥 Sangle abdominale</label>
+        <div class="lsel-h" id="elsel-sa" data-key="esa">${[1,2,3,4,5].map(n=>`<span class="istar" data-val="${n}" style="color:#dadce0;font-size:24px" onclick="setEditStar('sa',${n})">★</span>`).join('')}</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;margin-top:22px;justify-content:flex-end">
+      <button class="btn" style="background:var(--bg);color:var(--text)" onclick="closeM()">Annuler</button>
+      <button class="btn btn-b" onclick="saveEdit()">💾 Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL NOUVEAU GROUPE -->
+<div class="mo" id="modal-class" onclick="if(event.target===this)closeClassModal()">
+  <div class="moc">
+    <h3>🏋️ Nouveau groupe</h3>
+    <div class="fg" style="margin-bottom:20px">
+      <label>Nom du groupe</label>
+      <input type="text" id="class-inp" placeholder="Ex : L1 Éco, M2 Finance, Yoga Lundi…" style="width:100%" onkeydown="if(event.key==='Enter')saveClass()">
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end">
+      <button class="btn" style="background:var(--bg);color:var(--text)" onclick="closeClassModal()">Annuler</button>
+      <button class="btn btn-b" onclick="saveClass()">➕ Créer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL IMPORT CSV -->
+<div class="mo" id="modal-import" onclick="if(event.target===this)closeImport()">
+  <div class="moc" style="max-width:560px;display:flex;flex-direction:column;max-height:90vh;padding:0;overflow:hidden">
+    <div style="padding:22px 24px 14px;border-bottom:1px solid var(--border);flex-shrink:0">
+      <h3 style="margin-bottom:12px">📥 Importer des étudiants</h3>
+      <div class="al al-i" style="margin:0;font-size:13px">
+        <strong>Format attendu (3 colonnes, séparateur tabulation ou point-virgule) :</strong><br>
+        <code style="background:#fff;padding:3px 8px;border-radius:5px;font-size:12px;display:inline-block;margin:6px 0">NOM &nbsp;|&nbsp; Prénom &nbsp;|&nbsp; Sexe</code><br>
+        ✅ Export ProNote/Ecole Directe accepté · En-tête ignorée automatiquement<br>
+        ✅ Les niveaux HC / MI / SA seront à définir manuellement (ils évoluent)
+      </div>
+    </div>
+    <div style="overflow-y:auto;flex:1;padding:16px 24px">
+      <div id="drop-zone" style="border:2.5px dashed var(--border);border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:14px"
+        onclick="G('file-inp').click()"
+        ondragover="event.preventDefault();this.style.borderColor='var(--primary)';this.style.background='#ede7ff'"
+        ondragleave="this.style.borderColor='var(--border)';this.style.background=''"
+        ondrop="handleDrop(event)">
+        <div style="font-size:32px;margin-bottom:6px">📂</div>
+        <div style="font-weight:600;margin-bottom:4px">Glisser-déposer un fichier ici</div>
+        <div style="font-size:13px;color:var(--muted)">ou cliquer · CSV ou XLSX</div>
+      </div>
+      <input type="file" id="file-inp" accept=".csv,.xlsx,.xls,.txt" style="display:none" onchange="handleFile(this.files[0])">
+      <div id="import-preview" style="display:none">
+        <div style="font-weight:700;font-size:13px;margin-bottom:8px" id="import-preview-title"></div>
+        <div style="max-height:220px;overflow-y:auto;border:1.5px solid var(--border);border-radius:8px">
+          <table style="width:100%;border-collapse:collapse;font-size:13px" id="import-table"></table>
+        </div>
+        <div id="import-errors" style="margin-top:8px;font-size:12px;color:var(--red)"></div>
+      </div>
+    </div>
+    <div style="padding:14px 24px;border-top:1px solid var(--border);display:flex;gap:10px;justify-content:flex-end;flex-shrink:0;background:#fff">
+      <button class="btn" style="background:var(--bg);color:var(--text)" onclick="closeImport()">Annuler</button>
+      <button class="btn btn-b" id="btn-import-confirm" style="display:none" onclick="confirmImport()">✅ Importer</button>
+    </div>
+  </div>
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getDatabase, ref, set, push, update, remove, onValue, off }
+  from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDIu7vT2aSNjwGXRJ-8Xc8MRxBB8DyRC5U",
+  authDomain: "eps-equipes.firebaseapp.com",
+  databaseURL: "https://eps-equipes-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "eps-equipes",
+  storageBucket: "eps-equipes.firebasestorage.app",
+  messagingSenderId: "396511777428",
+  appId: "1:396511777428:web:c41c1bd4eced8f4e6c5a81"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const auth  = getAuth(fbApp);
+const db    = getDatabase(fbApp);
+const provider = new GoogleAuthProvider();
+
+// ── STATE ───────────────────────────────────────────────
+let uid = null, groups = {}, currentGrpId = null, editId = null, EQ = [], dbListener = null;
+let importRows = [];
+const formStars = { hc: 3, mi: 3, sa: 3 };
+const editStars = { hc: 3, mi: 3, sa: 3 };
+
+// ── UTILS ────────────────────────────────────────────────
+const G   = id => document.getElementById(id);
+const COL = ['#e53935','#1e88e5','#43a047','#fb8c00','#8e24aa','#00897b','#6d4c41','#f06292'];
+
+// Score global = moyenne des 3 critères
+const score = e => ((e.hc||3) + (e.mi||3) + (e.sa||3)) / 3;
+
+// Dominante : max des 3, ou POLY si égalité
+function dominante(e) {
+  const hc = e.hc||3, mi = e.mi||3, sa = e.sa||3;
+  const mx = Math.max(hc, mi, sa);
+  const wins = [hc===mx, mi===mx, sa===mx].filter(Boolean).length;
+  if (wins > 1) return { label:'POLY', emoji:'', color:'#9c27b0' };
+  if (hc===mx)  return { label:'HC',   emoji:'💪', color:'#e53935' };
+  if (mi===mx)  return { label:'MI',   emoji:'🦵', color:'#1e88e5' };
+  return               { label:'SA',   emoji:'🔥', color:'#43a047' };
+}
+
+// Couleur étoile selon critère et niveau
+const starColor = (key, nv) => {
+  const cols = { hc:['#ffcdd2','#ef9a9a','#e53935','#c62828','#b71c1c'],
+                 mi:['#bbdefb','#90caf9','#1e88e5','#1565c0','#0d47a1'],
+                 sa:['#c8e6c9','#a5d6a7','#43a047','#2e7d32','#1b5e20'] };
+  return cols[key]?.[nv-1] || '#fbbc04';
+};
+
+function renderFormStars(key, val) {
+  const el = G('lsel-' + key);
+  if (!el) return;
+  el.querySelectorAll('.istar').forEach(s => {
+    const n = parseInt(s.dataset.val);
+    s.style.color = n <= val ? starColor(key, val) : '#dadce0';
+  });
+}
+function renderEditStars(key, val) {
+  const el = G('elsel-' + key);
+  if (!el) return;
+  el.querySelectorAll('.istar').forEach(s => {
+    const n = parseInt(s.dataset.val);
+    s.style.color = n <= val ? starColor(key, val) : '#dadce0';
+  });
+}
+window.setFormStar = (key, val) => { formStars[key] = val; renderFormStars(key, val); };
+window.setEditStar = (key, val) => { editStars[key] = val; renderEditStars(key, val); };
+
+function starsHtml(key, val, id) {
+  return [1,2,3,4,5].map(n =>
+    `<span class="istar" style="font-size:18px;color:${n<=val?starColor(key,val):'#dadce0'};cursor:pointer"
+      onclick="setNiveau('${id}','${key}',${n})" title="Niv.${n}">★</span>`
+  ).join('');
+}
+
+// ── AUTH ─────────────────────────────────────────────────
+window.loginGoogle = async () => {
+  try { await signInWithPopup(auth, provider); }
+  catch(e) { alert('Erreur : ' + e.message); }
+};
+window.logout = async () => {
+  if (dbListener) { off(ref(db, `users/${uid}/suaps`)); dbListener = null; }
+  await signOut(auth);
+};
+
+onAuthStateChanged(auth, user => {
+  if (user) {
+    uid = user.uid;
+    G('login-screen').style.display = 'none';
+    G('app').style.display = 'flex';
+    G('user-name').textContent = user.displayName || '';
+    G('user-avatar').src = user.photoURL || '';
+    // Init form stars display
+    ['hc','mi','sa'].forEach(k => renderFormStars(k, formStars[k]));
+    startListening();
+  } else {
+    uid = null; groups = {}; currentGrpId = null;
+    G('login-screen').style.display = 'flex';
+    G('app').style.display = 'none';
+  }
+});
+
+// ── LISTENER ─────────────────────────────────────────────
+function startListening() {
+  const r = ref(db, `users/${uid}/suaps`);
+  if (dbListener) off(r);
+  dbListener = onValue(r, async snap => {
+    groups = snap.val() || {};
+    const ids = Object.keys(groups);
+    renderGroupBar();
+    if (currentGrpId && !groups[currentGrpId]) currentGrpId = null;
+    if (!currentGrpId) {
+      if (ids.length > 0) await selectGroup(ids[0]);
+      else showNoGroup();
+    } else {
+      updateTitle();
+      renderEtudiants();
+      updateStats();
+    }
+  });
+}
+
+// ── GROUP BAR ─────────────────────────────────────────────
+function renderGroupBar() {
+  const entries = Object.entries(groups);
+  let html = entries.map(([id, g]) => `
+    <span class="class-chip ${id===currentGrpId?'active':''}" onclick="selectGroup('${id}')">
+      🏋️ ${g.nom}
+      <button class="del-cls" onclick="event.stopPropagation();deleteGroup('${id}')" title="Supprimer">×</button>
+    </span>`).join('');
+  html += `<button class="btn-add-class" onclick="addClassPrompt()">＋ Nouveau groupe</button>`;
+  G('class-bar').innerHTML = html;
+}
+
+function updateTitle() {
+  const nom = groups[currentGrpId]?.nom || '';
+  G('add-card-title').innerHTML = `🏋️ Ajouter un étudiant <span style="font-weight:400;color:var(--primary);font-size:13px;margin-left:6px">dans ${nom}</span>`;
+}
+
+window.selectGroup = async id => {
+  if (!groups[id]) return;
+  currentGrpId = id; EQ = [];
+  G('b-eq').textContent = '0';
+  G('eqcontent').innerHTML = '<div class="empty"><div class="em">🏋️</div><p>Aucune équipe composée.<br>Allez dans <strong>Paramètres</strong>.</p></div>';
+  G('no-class-view').style.display = 'none';
+  G('panels').style.display = 'block';
+  G('tabs').style.display   = 'flex';
+  updateTitle(); renderGroupBar(); showTab('etudiants'); renderEtudiants();
+  // Recharge équipes sauvegardées
+  try {
+    const snap = await new Promise(res => onValue(ref(db,`users/${uid}/suaps/${id}/equipes`), res, {onlyOnce:true}));
+    const saved = snap.val();
+    if (saved?.data?.length) {
+      EQ = saved.data;
+      G('b-eq').textContent = EQ.length;
+      if (saved.neq)      G('neq').value = saved.neq;
+      if (saved.njoueurs) G('njoueurs').value = saved.njoueurs;
+      if (saved.bal)      document.querySelector(`input[name=eq][value="${saved.bal}"]`).checked = true;
+      renderEQ();
+    }
+  } catch(e) {}
+};
+
+function showNoGroup() {
+  currentGrpId = null;
+  G('no-class-view').style.display = 'block';
+  G('panels').style.display = 'none';
+  G('tabs').style.display   = 'none';
+  renderGroupBar();
+}
+
+window.addClassPrompt = () => { G('class-inp').value=''; G('modal-class').classList.add('open'); setTimeout(()=>G('class-inp').focus(),80); };
+window.closeClassModal = () => G('modal-class').classList.remove('open');
+window.saveClass = async () => {
+  const nom = G('class-inp').value.trim(); if (!nom) return;
+  const r = push(ref(db,`users/${uid}/suaps`));
+  await set(r,{nom,etudiants:{}}); closeClassModal();
+};
+window.deleteGroup = async id => {
+  const g = groups[id]; if (!g) return;
+  const nb = Object.keys(g.etudiants||{}).length;
+  if (!confirm(`Supprimer "${g.nom}" et ses ${nb} étudiant(s) ?`)) return;
+  await remove(ref(db,`users/${uid}/suaps/${id}`));
+};
+
+// ── TABS ──────────────────────────────────────────────────
+window.showTab = t => {
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
+  G('panel-'+t).classList.add('active');
+  G('tab-'+t).classList.add('active');
+  if (t==='params') preview();
+};
+
+// ── ÉTUDIANTS ─────────────────────────────────────────────
+function etudiantsOf(gid) { return groups[gid]?.etudiants||{}; }
+function etudiantsArr(gid) { return Object.entries(etudiantsOf(gid)).map(([id,e])=>({id,...e})); }
+function curEts() { return etudiantsArr(currentGrpId); }
+
+window.addEtudiant = async () => {
+  if (!currentGrpId) return;
+  const nom = G('inp').value.trim(); if (!nom) { G('inp').focus(); return; }
+  const r = push(ref(db,`users/${uid}/suaps/${currentGrpId}/etudiants`));
+  await set(r,{nom,hc:formStars.hc,mi:formStars.mi,sa:formStars.sa,abs:false});
+  G('inp').value=''; G('inp').focus();
+};
+
+window.renderEtudiants = () => {
+  if (!currentGrpId) return;
+  const q = (G('q').value||'').toLowerCase();
+  let L = curEts().filter(e=>e.nom.toLowerCase().includes(q));
+  L.sort((a,b)=>a.abs!==b.abs?(a.abs?1:-1):a.nom.localeCompare(b.nom));
+
+  G('list').innerHTML = !L.length
+    ? '<div class="empty" style="grid-column:1/-1"><div class="em">👀</div><p>Aucun étudiant trouvé.</p></div>'
+    : L.map(e => {
+        const dom = dominante(e);
+        const sc  = score(e).toFixed(1);
+        return `<div class="sc ${e.abs?'absent':''}">
+          <div class="gab">${e.nom.charAt(0).toUpperCase()}</div>
+          <div class="sinfo">
+            <div class="sname" title="${e.nom}">${e.nom}</div>
+            <div class="smeta">Score global : <strong>${sc}/5</strong>
+              ${e.abs?'<span style="color:var(--red);font-weight:700;font-size:11px;margin-left:4px">ABSENT</span>':''}
+            </div>
+            <span class="dom" style="background:${dom.color}">${dom.emoji} ${dom.label}</span>
+            <div class="stars-row" style="margin-top:6px">
+              <span class="slabel" style="color:var(--hc)">HC</span>
+              ${starsHtml('hc',e.hc||3,e.id)}
+              <span style="font-size:11px;font-weight:700;color:var(--hc);margin-left:3px">${e.hc||3}</span>
+            </div>
+            <div class="stars-row">
+              <span class="slabel" style="color:var(--mi)">MI</span>
+              ${starsHtml('mi',e.mi||3,e.id)}
+              <span style="font-size:11px;font-weight:700;color:var(--mi);margin-left:3px">${e.mi||3}</span>
+            </div>
+            <div class="stars-row">
+              <span class="slabel" style="color:var(--sa)">SA</span>
+              ${starsHtml('sa',e.sa||3,e.id)}
+              <span style="font-size:11px;font-weight:700;color:var(--sa);margin-left:3px">${e.sa||3}</span>
+            </div>
+          </div>
+          <div class="sact">
+            <button class="ico-btn" title="${e.abs?'Présent':'Absent'}" onclick="togAbs('${e.id}')">${e.abs?'✅':'😴'}</button>
+            <button class="ico-btn" onclick="openEdit('${e.id}')">✏️</button>
+            <button class="ico-btn" onclick="delEt('${e.id}')">🗑️</button>
+          </div>
+        </div>`;
+      }).join('');
+
+  updateStats();
+};
+
+function updateStats() {
+  const all = curEts(), pr = all.filter(e=>!e.abs);
+  const avgSc = pr.length ? (pr.reduce((s,e)=>s+score(e),0)/pr.length).toFixed(1) : '-';
+  G('sbar').innerHTML = `
+    <div class="chip">🏋️ Total <strong>${all.length}</strong></div>
+    <div class="chip">✅ Présents <strong>${pr.length}</strong></div>
+    <div class="chip">😴 Absents <strong>${all.filter(e=>e.abs).length}</strong></div>
+    <div class="chip">⭐ Score moy. <strong>${avgSc}</strong></div>`;
+  G('b-et').textContent = all.length;
+}
+
+window.setNiveau = async (id, key, val) => {
+  await update(ref(db,`users/${uid}/suaps/${currentGrpId}/etudiants/${id}`), {[key]:val});
+};
+window.togAbs = async id => {
+  const e = etudiantsOf(currentGrpId)[id]; if (!e) return;
+  await update(ref(db,`users/${uid}/suaps/${currentGrpId}/etudiants/${id}`),{abs:!e.abs});
+};
+window.delEt = async id => {
+  if (!confirm('Supprimer cet étudiant ?')) return;
+  await remove(ref(db,`users/${uid}/suaps/${currentGrpId}/etudiants/${id}`));
+};
+window.allPresent = async () => {
+  const u={}; curEts().forEach(e=>{u[`users/${uid}/suaps/${currentGrpId}/etudiants/${e.id}/abs`]=false;});
+  await update(ref(db),u);
+};
+window.allAbsent = async () => {
+  const u={}; curEts().forEach(e=>{u[`users/${uid}/suaps/${currentGrpId}/etudiants/${e.id}/abs`]=true;});
+  await update(ref(db),u);
+};
+
+// ── MODAL EDIT ───────────────────────────────────────────
+window.openEdit = id => {
+  const e = etudiantsOf(currentGrpId)[id]; if (!e) return;
+  editId = id;
+  G('en2').value = e.nom;
+  ['hc','mi','sa'].forEach(k=>{ editStars[k]=e[k]||3; renderEditStars(k,editStars[k]); });
+  G('modal').classList.add('open');
+};
+window.closeM = () => { G('modal').classList.remove('open'); editId=null; };
+window.saveEdit = async () => {
+  if (!editId) return;
+  const nom = G('en2').value.trim(); if (!nom) return;
+  await update(ref(db,`users/${uid}/suaps/${currentGrpId}/etudiants/${editId}`),
+    {nom,hc:editStars.hc,mi:editStars.mi,sa:editStars.sa});
+  closeM();
+};
+
+// ── PREVIEW ──────────────────────────────────────────────
+window.preview = () => {
+  const pr=curEts().filter(e=>!e.abs), neq=parseInt(G('neq').value)||2, njou=parseInt(G('njoueurs').value)||5;
+  const extras = Math.max(0,pr.length-neq*njou);
+  G('prev').innerHTML = pr.length<neq
+    ? `<div class="al al-w">⚠️ Pas assez d'étudiants présents (${pr.length}) pour ${neq} équipes.</div>`
+    : `<div class="al al-i">👁️ <strong>${neq} équipes de ${njou} étudiants</strong> · ${pr.length} présents
+       ${extras>0?`· <strong>${extras} extra(s)</strong> réparti(s)`:' · Répartition parfaite ✓'}</div>`;
+};
+
+// ── COMPOSITION ──────────────────────────────────────────
+function snake(pool, teams, n) {
+  let dir=1, idx=0;
+  pool.forEach(j=>{
+    teams[idx].joueurs.push({...j});
+    if(dir===1){if(idx<n-1)idx++;else dir=-1;}
+    else{if(idx>0)idx--;else dir=1;}
+  });
+}
+
+function distrib(pool, n, bal) {
+  const teams = Array.from({length:n},(_,i)=>({id:i,joueurs:[]}));
+  if (!pool.length) return teams;
+  let p = [...pool];
+  if (bal) {
+    p.sort((a,b)=>score(a)-score(b));
+    // Mélange aléatoire au sein de chaque groupe de score
+    let i=0;
+    while(i<p.length){
+      let j=i;
+      const ref=Math.round(score(p[i])*2)/2;
+      while(j<p.length && Math.abs(score(p[j])-ref)<0.34) j++;
+      for(let k=j-1;k>i;k--){const r=i+Math.floor(Math.random()*(k-i+1));[p[k],p[r]]=[p[r],p[k]];}
+      i=j;
+    }
+  } else p.sort(()=>Math.random()-.5);
+  snake(p,teams,n);
+  teams.forEach(t=>{
+    if(bal) t.joueurs.sort((a,b)=>score(a)-score(b));
+    t.joueurs.forEach((j,i)=>j.num=i+1);
+  });
+  return teams;
+}
+
+window.compose = async () => {
+  const n=parseInt(G('neq').value), njou=parseInt(G('njoueurs').value)||5;
+  const bal=document.querySelector('input[name=eq]:checked').value==='oui';
+  const pr=curEts().filter(e=>!e.abs);
+  if(pr.length<n){alert(`Pas assez d'étudiants présents (${pr.length}) pour ${n} équipes.`);return;}
+  EQ = distrib(pr,n,bal);
+  G('b-eq').textContent=EQ.length;
+
+  // Sauvegarde Firebase
+  const toSave=EQ.map(t=>({id:t.id,joueurs:t.joueurs.map(j=>({id:j.id,nom:j.nom,hc:j.hc,mi:j.mi,sa:j.sa,num:j.num}))}));
+  await set(ref(db,`users/${uid}/suaps/${currentGrpId}/equipes`),{data:toSave,neq:n,njoueurs:njou,bal:document.querySelector('input[name=eq]:checked').value,savedAt:Date.now()});
+
+  renderEQ(); showTab('equipes');
+};
+
+function renderEQ() {
+  if(!EQ.length) return;
+  const pr=curEts().filter(e=>!e.abs).length;
+  const njou=parseInt(G('njoueurs').value)||5;
+  const grpNom=groups[currentGrpId]?.nom||'';
+  const maxJ=Math.max(...EQ.map(t=>t.joueurs.length));
+
+  let html=`<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px">
+    <div class="al al-i" style="flex:1;margin:0">
+      🏋️ <strong>${grpNom}</strong> · ✅ ${pr} présents · ${EQ.length} équipes de ~${maxJ} étudiants
+    </div>
+    <button class="btn btn-sm" style="background:var(--yellow);color:#333" onclick="compose()">🔀 Recomposer</button>
+    <button class="btn btn-sm btn-b" onclick="window.print()">🖨️ Imprimer</button>
+  </div><div class="tgrid">`;
+
+  EQ.forEach((team,i)=>{
+    const col=COL[i%COL.length];
+    const avgSc=team.joueurs.length?(team.joueurs.reduce((s,j)=>s+score(j),0)/team.joueurs.length).toFixed(1):'-';
+    const principaux=team.joueurs.slice(0,njou);
+    const extras=team.joueurs.slice(njou);
+
+    const rowJ=j=>{
+      const dom=dominante(j);
+      return `<div class="pr">
+        <div class="pnum">${j.num}</div>
+        <div class="pname">${j.nom}</div>
+        <span style="font-size:12px;font-weight:700;background:${dom.color};color:#fff;padding:1px 6px;border-radius:8px">${dom.emoji}${dom.label}</span>
+      </div>`;
+    };
+
+    const extrasHtml=extras.length?`<div class="sdiv">➕ Extra</div>${extras.map(rowJ).join('')}`:'';
+    html+=`<div class="tc">
+      <div class="th" style="background:${col}">
+        <span>Équipe ${i+1}</span>
+        <span style="font-size:12px;opacity:.9">⭐${avgSc} · ${team.joueurs.length}p</span>
+      </div>
+      <div class="tbody">${principaux.map(rowJ).join('')}${extrasHtml}</div>
+    </div>`;
+  });
+
+  html+='</div>';
+  G('eqcontent').innerHTML=html;
+}
+
+// ── IMPORT CSV ────────────────────────────────────────────
+window.openImport = ()=>{ importRows=[]; G('import-preview').style.display='none'; G('btn-import-confirm').style.display='none'; G('file-inp').value=''; G('modal-import').classList.add('open'); };
+window.closeImport = ()=>G('modal-import').classList.remove('open');
+window.handleDrop = e=>{ e.preventDefault(); const f=e.dataTransfer.files[0]; if(f) handleFile(f); };
+window.handleFile = file=>{ if(!file) return; const ext=file.name.split('.').pop().toLowerCase(); if(['xlsx','xls'].includes(ext)) parseExcel(file); else parseCsv(file); };
+
+function parseCsv(file){
+  const r=new FileReader();
+  r.onload=e=>{ const t=e.target.result; const lines=t.split(/\r?\n/).filter(l=>l.trim());
+    processLines(lines.map(l=>{const sep=l.includes(';')?';':l.includes('\t')?'\t':',';return l.split(sep).map(c=>c.trim().replace(/^["']|["']$/g,''));})); };
+  r.readAsText(file,'ISO-8859-1');
+}
+
+function parseExcel(file){
+  const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+  s.onload=()=>{ const r=new FileReader(); r.onload=e=>{const wb=XLSX.read(e.target.result,{type:'array'}); const ws=wb.Sheets[wb.SheetNames[0]]; processLines(XLSX.utils.sheet_to_json(ws,{header:1,defval:''}).map(row=>row.map(c=>String(c).trim())));};r.readAsArrayBuffer(file);};
+  document.head.appendChild(s);
+}
+
+function normSexe(val){ if(!val) return null; const v=val.trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\x00-\x7F]/g,'').trim(); if(!v) return null; if(['g','m','h','garcon','masculin','boy','male'].includes(v)||v[0]==='m'||v[0]==='g'||v[0]==='h') return 'G'; if(['f','fille','feminin','girl','female'].includes(v)||v[0]==='f') return 'F'; return null; }
+
+function processLines(rows){
+  if(!rows.length) return;
+  const valid=[],errors=[];
+  let start=0; const fr=rows[0]; if(fr.length>=1&&normSexe(fr[2]||fr[1]||'')==null) start=1;
+  rows.slice(start).forEach((cols,i)=>{
+    const lineNum=start+i+1;
+    if(!cols||cols.every(c=>!c.trim())) return;
+    let nom;
+    if(cols.length>=3){ const nf=(cols[0]||'').trim(),pr=(cols[1]||'').trim(); nom=pr&&nf?`${pr} ${nf}`:(nf||pr); }
+    else if(cols.length===2) nom=(cols[0]||'').trim();
+    else { errors.push(`Ligne ${lineNum}: pas assez de colonnes`); return; }
+    if(!nom){ errors.push(`Ligne ${lineNum}: nom vide`); return; }
+    valid.push({nom,hc:3,mi:3,sa:3});
+  });
+  importRows=valid;
+  G('import-preview').style.display='block';
+  G('import-preview-title').innerHTML=`<span style="color:var(--green)">✅ ${valid.length} étudiant(s) prêt(s) à importer</span>`+(errors.length?` · <span style="color:var(--red)">${errors.length} ligne(s) ignorée(s)</span>`:'')+`<span style="color:var(--muted);font-size:12px;margin-left:8px">— Niveaux HC/MI/SA à définir dans l'appli</span>`;
+  const thead=`<tr style="background:var(--bg)"><th style="padding:8px 12px;font-size:11px;color:var(--muted)">#</th><th style="padding:8px 12px;font-size:11px;color:var(--muted)">NOM COMPLET</th></tr>`;
+  const tbody=valid.map((e,i)=>`<tr style="border-bottom:1px solid var(--border)"><td style="padding:7px 12px;font-size:12px;color:var(--muted)">${i+1}</td><td style="padding:7px 12px;font-size:13px;font-weight:600">${e.nom}</td></tr>`).join('');
+  G('import-table').innerHTML=thead+tbody;
+  G('import-errors').innerHTML=errors.map(e=>`⚠️ ${e}`).join('<br>');
+  G('btn-import-confirm').style.display=valid.length?'inline-flex':'none';
+}
+
+window.confirmImport = async ()=>{
+  if(!importRows.length||!currentGrpId) return;
+  G('btn-import-confirm').textContent='⏳ Import en cours…'; G('btn-import-confirm').disabled=true;
+  const updates={};
+  importRows.forEach(e=>{ const k=push(ref(db,`users/${uid}/suaps/${currentGrpId}/etudiants`)).key; updates[`users/${uid}/suaps/${currentGrpId}/etudiants/${k}`]={nom:e.nom,hc:3,mi:3,sa:3,abs:false}; });
+  await update(ref(db),updates);
+  G('btn-import-confirm').textContent='✅ Importer'; G('btn-import-confirm').disabled=false;
+  closeImport();
+};
+</script>
+</body>
+</html>
